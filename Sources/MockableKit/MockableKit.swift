@@ -75,6 +75,7 @@ public extension Mockable {
         )
     }
 
+    /*
     /// Generate a single mock instance using a completion handler.
     ///
     /// - Parameters:
@@ -99,7 +100,30 @@ public extension Mockable {
             }
         }
     }
+     */
 
+    /// Generate a single mock instance using a completion handler, returning an optional value.
+    ///
+    /// - Parameters:
+    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
+    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
+    ///   - completion: Called with the optional result on an arbitrary thread. `nil` on failure.
+    static func mock(
+        configuration: MockableConfiguration = .shared,
+        cacheEnabled: Bool? = nil,
+        completion: @escaping (Self?) -> Void
+    ) {
+        Task {
+            let result = try? await MockEngine.shared.generate(
+                for: Self.self,
+                configuration: configuration,
+                cacheEnabled: cacheEnabled
+            )
+            completion(result)
+        }
+    }
+
+    /*
     /// Generate multiple mock instances using a completion handler.
     ///
     /// - Parameters:
@@ -125,6 +149,31 @@ public extension Mockable {
             } catch {
                 completion(.failure(error))
             }
+        }
+    }
+     */
+
+    /// Generate multiple mock instances using a completion handler, returning an optional array.
+    ///
+    /// - Parameters:
+    ///   - count: Number of instances to generate.
+    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
+    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
+    ///   - completion: Called with the optional result on an arbitrary thread. `nil` on failure.
+    static func mocks(
+        count: Int,
+        configuration: MockableConfiguration = .shared,
+        cacheEnabled: Bool? = nil,
+        completion: @escaping ([Self]?) -> Void
+    ) {
+        Task {
+            let result = try? await MockEngine.shared.generateArray(
+                for: Self.self,
+                count: count,
+                configuration: configuration,
+                cacheEnabled: cacheEnabled
+            )
+            completion(result)
         }
     }
 }
