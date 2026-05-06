@@ -1,8 +1,8 @@
-# MockableKit — AI-powered mock data generator for Swift
+# MockableKit, AI-powered mock data generator for Swift
 
 > Generate mocks in seconds, not minutes.
 
-MockableKit is a Swift package that lets any `Decodable` struct generate realistic mock data using Gemini AI. It reads your struct's field names and types automatically via the `Decodable` protocol — no manual setup per struct, no hand-written JSON fixtures, no maintenance overhead.
+MockableKit is a Swift package that lets any `Decodable` struct generate realistic mock data using Gemini AI. It reads your struct's field names and types automatically via the `Decodable` protocol, no manual setup per struct, no hand-written JSON fixtures, no maintenance overhead.
 
 [![Swift 5.9+](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)](https://swift.org)
 [![SPM Compatible](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager)
@@ -13,7 +13,7 @@ MockableKit is a Swift package that lets any `Decodable` struct generate realist
 
 ## Why MockableKit?
 
-Writing mock data by hand is slow and brittle — fields change, fixtures go stale, and boilerplate piles up. MockableKit eliminates that by generating context-aware, realistic test data directly from your Swift types using a large language model. Drop it into any XCTest target or SwiftUI Preview and get meaningful data with a single line of code.
+Writing mock data by hand is slow and brittle, fields change, fixtures go stale, and boilerplate piles up. MockableKit eliminates that by generating context-aware, realistic test data directly from your Swift types using a large language model. Drop it into any XCTest target or SwiftUI Preview and get meaningful data with a single line of code.
 
 ---
 
@@ -280,11 +280,11 @@ MockableKit/
 
 ## Important Notes
 
-- **Test targets only** — Don't ship MockableKit in your production app target. Add it only to test and preview targets.
-- **API key security** — Never hardcode your key. Use `ProcessInfo.processInfo.environment["GEMINI_API_KEY"]` in CI.
-- **Async** — All `async throws` overloads require iOS 13+ with Swift Concurrency back-deployment or a wrapping `Task {}`.
-- **Completion handlers** — The `(Self?) -> Void` overloads are available for all supported platforms and require no concurrency runtime support at the call site.
-- **Thread safety** — `MockCache` is an `actor`; all reads and writes are safe from any thread or task.
+- **Test targets only**, Don't ship MockableKit in your production app target. Add it only to test and preview targets.
+- **API key security**, Never hardcode your key. Use `ProcessInfo.processInfo.environment["GEMINI_API_KEY"]` in CI.
+- **Async**, All `async throws` overloads require iOS 13+ with Swift Concurrency back-deployment or a wrapping `Task {}`.
+- **Completion handlers**, The `(Self?) -> Void` overloads are available for all supported platforms and require no concurrency runtime support at the call site.
+- **Thread safety**, `MockCache` is an `actor`; all reads and writes are safe from any thread or task.
 
 ---
 
