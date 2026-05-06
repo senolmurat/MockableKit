@@ -45,4 +45,35 @@ public extension Mockable {
     static func mocks(count: Int, configuration: MockableConfiguration = .shared) async throws -> [Self] {
         return try await MockEngine.shared.generateArray(for: Self.self, count: count, configuration: configuration)
     }
+
+    /// Generate a single mock instance using a completion handler.
+    static func mock(
+        configuration: MockableConfiguration = .shared,
+        completion: @escaping (Result<Self, Error>) -> Void
+    ) {
+        Task {
+            do {
+                let result = try await MockEngine.shared.generate(for: Self.self, configuration: configuration)
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
+
+    /// Generate multiple mock instances using a completion handler.
+    static func mocks(
+        count: Int,
+        configuration: MockableConfiguration = .shared,
+        completion: @escaping (Result<[Self], Error>) -> Void
+    ) {
+        Task {
+            do {
+                let result = try await MockEngine.shared.generateArray(for: Self.self, count: count, configuration: configuration)
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
 }
