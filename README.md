@@ -37,8 +37,7 @@ Or add to `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(path: "../MockableKit") // local
-    // or: .package(url: "https://github.com/you/MockableKit", from: "1.0.0")
+    .package(url: "https://github.com/senolmurat/MockableKit", from: "1.0.0")
 ],
 targets: [
     .testTarget(
