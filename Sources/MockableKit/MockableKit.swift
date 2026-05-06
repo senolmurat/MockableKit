@@ -37,23 +37,62 @@ public extension Mockable {
     }
 
     /// Generate a single mock instance using the configured LLM.
-    static func mock(configuration: MockableConfiguration = .shared) async throws -> Self {
-        return try await MockEngine.shared.generate(for: Self.self, configuration: configuration)
+    ///
+    /// - Parameters:
+    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
+    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
+    ///     Pass `true` to force caching, `false` to always fetch fresh data,
+    ///     or `nil` (default) to use `configuration.cacheEnabled`.
+    static func mock(
+        configuration: MockableConfiguration = .shared,
+        cacheEnabled: Bool? = nil
+    ) async throws -> Self {
+        return try await MockEngine.shared.generate(
+            for: Self.self,
+            configuration: configuration,
+            cacheEnabled: cacheEnabled
+        )
     }
 
     /// Generate multiple mock instances.
-    static func mocks(count: Int, configuration: MockableConfiguration = .shared) async throws -> [Self] {
-        return try await MockEngine.shared.generateArray(for: Self.self, count: count, configuration: configuration)
+    ///
+    /// - Parameters:
+    ///   - count: Number of instances to generate.
+    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
+    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
+    ///     Pass `true` to force caching, `false` to always fetch fresh data,
+    ///     or `nil` (default) to use `configuration.cacheEnabled`.
+    static func mocks(
+        count: Int,
+        configuration: MockableConfiguration = .shared,
+        cacheEnabled: Bool? = nil
+    ) async throws -> [Self] {
+        return try await MockEngine.shared.generateArray(
+            for: Self.self,
+            count: count,
+            configuration: configuration,
+            cacheEnabled: cacheEnabled
+        )
     }
 
     /// Generate a single mock instance using a completion handler.
+    ///
+    /// - Parameters:
+    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
+    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
+    ///   - completion: Called with the result on an arbitrary thread.
     static func mock(
         configuration: MockableConfiguration = .shared,
+        cacheEnabled: Bool? = nil,
         completion: @escaping (Result<Self, Error>) -> Void
     ) {
         Task {
             do {
-                let result = try await MockEngine.shared.generate(for: Self.self, configuration: configuration)
+                let result = try await MockEngine.shared.generate(
+                    for: Self.self,
+                    configuration: configuration,
+                    cacheEnabled: cacheEnabled
+                )
                 completion(.success(result))
             } catch {
                 completion(.failure(error))
@@ -62,14 +101,26 @@ public extension Mockable {
     }
 
     /// Generate multiple mock instances using a completion handler.
+    ///
+    /// - Parameters:
+    ///   - count: Number of instances to generate.
+    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
+    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
+    ///   - completion: Called with the result on an arbitrary thread.
     static func mocks(
         count: Int,
         configuration: MockableConfiguration = .shared,
+        cacheEnabled: Bool? = nil,
         completion: @escaping (Result<[Self], Error>) -> Void
     ) {
         Task {
             do {
-                let result = try await MockEngine.shared.generateArray(for: Self.self, count: count, configuration: configuration)
+                let result = try await MockEngine.shared.generateArray(
+                    for: Self.self,
+                    count: count,
+                    configuration: configuration,
+                    cacheEnabled: cacheEnabled
+                )
                 completion(.success(result))
             } catch {
                 completion(.failure(error))

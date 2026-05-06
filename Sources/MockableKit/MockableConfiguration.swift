@@ -33,5 +33,21 @@ public class MockableConfiguration {
     /// If true, prints the generated JSON to the console. Useful during development.
     public var debugLogging: Bool = false
 
+    /// If true (default), successful Gemini responses are cached to disk and returned
+    /// on subsequent calls with the same type, schema, count, locale, and model —
+    /// without hitting the Gemini API again.
+    /// Set to `false` to always request fresh data.
+    public var cacheEnabled: Bool = true
+
     public init() {}
+
+    // MARK: - Cache Management
+
+    /// Removes all cached mock responses from disk.
+    /// Call this when you want to force fresh data on the next `mock()` / `mocks()` call.
+    public static func clearCache() {
+        Task {
+            await MockCache.shared.clear()
+        }
+    }
 }

@@ -12,9 +12,21 @@ internal class MockEngine {
 
     // MARK: - Public Interface
 
-    func generate<T: Mockable>(for type: T.Type, configuration: MockableConfiguration) async throws -> T {
+    func generate<T: Mockable>(
+        for type: T.Type,
+        configuration: MockableConfiguration,
+        cacheEnabled: Bool? = nil
+    ) async throws -> T {
         let schema = extractSchema(from: type)
-        let json = try await callLLM(typeName: type.mockContext, schema: schema, count: 1, configuration: configuration)
+        let shouldCache = cacheEnabled ?? configuration.cacheEnabled
+
+        let json = try await resolveJSON(
+            typeName: type.mockContext,
+            schema: schema,
+            count: 1,
+            configuration: configuration,
+            shouldCache: shouldCache
+        )
 
         if configuration.debugLogging {
             print("[MockableKit] Generated JSON:\n\(json)")
@@ -31,9 +43,22 @@ internal class MockEngine {
         }
     }
 
-    func generateArray<T: Mockable>(for type: T.Type, count: Int, configuration: MockableConfiguration) async throws -> [T] {
+    func generateArray<T: Mockable>(
+        for type: T.Type,
+        count: Int,
+        configuration: MockableConfiguration,
+        cacheEnabled: Bool? = nil
+    ) async throws -> [T] {
         let schema = extractSchema(from: type)
-        let json = try await callLLM(typeName: type.mockContext, schema: schema, count: count, configuration: configuration)
+        let shouldCache = cacheEnabled ?? configuration.cacheEnabled
+
+        let json = try await resolveJSON(
+            typeName: type.mockContext,
+            schema: schema,
+            count: count,
+            configuration: configuration,
+            shouldCache: shouldCache
+        )
 
         if configuration.debugLogging {
             print("[MockableKit] Generated JSON:\n\(json)")
@@ -48,6 +73,49 @@ internal class MockEngine {
         } catch {
             throw MockableError.decodingFailed(json, error)
         }
+    }
+
+    // MARK: - Cache-aware JSON Resolution
+
+    private func resolveJSON(
+        typeName: String,
+        schema: [FieldDescriptor],
+        count: Int,
+        configuration: MockableConfiguration,
+        shouldCache: Bool
+    ) async throws -> String {
+        if shouldCache {
+            let key = MockCache.buildKey(
+                typeName: typeName,
+                schema: schema,
+                count: count,
+                locale: configuration.locale,
+                model: configuration.model
+            )
+
+            if let cached = await MockCache.shared.get(key: key) {
+                if configuration.debugLogging {
+                    print("[MockableKit] Cache hit for key: \(key)")
+                }
+                return cached
+            }
+
+            let json = try await callLLM(
+                typeName: typeName,
+                schema: schema,
+                count: count,
+                configuration: configuration
+            )
+            await MockCache.shared.set(key: key, value: json)
+            return json
+        }
+
+        return try await callLLM(
+            typeName: typeName,
+            schema: schema,
+            count: count,
+            configuration: configuration
+        )
     }
 
     // MARK: - Schema Extraction
