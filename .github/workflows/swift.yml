@@ -15,16 +15,40 @@ concurrency:
 
 jobs:
   build-and-test:
+    name: ${{ matrix.name }}
     runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            destination: platform=macOS
+            sdk: macosx
+ 
+          - name: iOS
+            destination: platform=iOS Simulator,name=iPhone 16,OS=latest
+            sdk: iphonesimulator
+ 
+          - name: tvOS
+            destination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest
+            sdk: appletvsimulator
+ 
+          - name: watchOS
+            destination: platform=watchOS Simulator,name=Apple Watch Series 10 (46mm),OS=latest
+            sdk: watchsimulator
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Select Xcode version
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+ 
+    - name: Show build tools
       run: |
-        sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-        xcode-select --print-path
+        xcodebuild -version
+        swift --version
 
     - name: Cache Build Artifacts
       uses: actions/cache@v4
@@ -36,15 +60,26 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-xcode-
 
-    - name: Build and Test
+    - name: Build
+      run: |
+        xcodebuild build \
+          -scheme ${{ github.event.repository.name }} \
+          -destination "${{ matrix.destination }}" \
+          -sdk ${{ matrix.sdk }} \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          | xcpretty && exit ${PIPESTATUS[0]}
+
+    - name: Test
       run: |
         xcodebuild test \
-          -scheme "MockableKit" \
-          -destination "platform=iOS Simulator, name=iPhone 16, OS=latest" \
-          -resultBundlePath TestResults.xcresult \
-          -derivedDataPath ./DerivedData \
-          -enableCodeCoverage YES | xcpretty
-
+          -scheme ${{ github.event.repository.name }} \
+          -destination "${{ matrix.destination }}" \
+          -sdk ${{ matrix.sdk }} \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          | xcpretty && exit ${PIPESTATUS[0]}
+            
     - name: Upload Test Results
       if: failure()
       uses: actions/upload-artifact@v4
