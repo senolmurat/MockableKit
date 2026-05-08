@@ -21,9 +21,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Select Xcode Version
-      run: sudo xcode-select -s /Applications/Xcode_15.4.app # Adjust to your target version
-
     - name: Cache Build Artifacts
       uses: actions/cache@v5.0.5
       with:
