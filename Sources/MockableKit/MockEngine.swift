@@ -201,6 +201,7 @@ internal class MockEngine {
         - Generate realistic, varied data that fits the field names and types.
         - For arrays, return a JSON array. For single objects, return a JSON object.
         - Match the exact field names provided (case-sensitive).
+        - Output numeric types (Int, Double, Float, Decimal) as JSON numbers, not strings.
         """
     }
 

@@ -75,33 +75,6 @@ public extension Mockable {
         )
     }
 
-    /*
-    /// Generate a single mock instance using a completion handler.
-    ///
-    /// - Parameters:
-    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
-    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
-    ///   - completion: Called with the result on an arbitrary thread.
-    static func mock(
-        configuration: MockableConfiguration = .shared,
-        cacheEnabled: Bool? = nil,
-        completion: @escaping (Result<Self, Error>) -> Void
-    ) {
-        Task {
-            do {
-                let result = try await MockEngine.shared.generate(
-                    for: Self.self,
-                    configuration: configuration,
-                    cacheEnabled: cacheEnabled
-                )
-                completion(.success(result))
-            } catch {
-                completion(.failure(error))
-            }
-        }
-    }
-     */
-
     /// Generate a single mock instance using a completion handler, returning an optional value.
     ///
     /// - Parameters:
@@ -119,39 +92,11 @@ public extension Mockable {
                 configuration: configuration,
                 cacheEnabled: cacheEnabled
             )
-            completion(result)
-        }
-    }
-
-    /*
-    /// Generate multiple mock instances using a completion handler.
-    ///
-    /// - Parameters:
-    ///   - count: Number of instances to generate.
-    ///   - configuration: The `MockableConfiguration` to use. Defaults to `.shared`.
-    ///   - cacheEnabled: Override the global `configuration.cacheEnabled` for this call.
-    ///   - completion: Called with the result on an arbitrary thread.
-    static func mocks(
-        count: Int,
-        configuration: MockableConfiguration = .shared,
-        cacheEnabled: Bool? = nil,
-        completion: @escaping (Result<[Self], Error>) -> Void
-    ) {
-        Task {
-            do {
-                let result = try await MockEngine.shared.generateArray(
-                    for: Self.self,
-                    count: count,
-                    configuration: configuration,
-                    cacheEnabled: cacheEnabled
-                )
-                completion(.success(result))
-            } catch {
-                completion(.failure(error))
+            DispatchQueue.main.async {
+                completion(result)
             }
         }
     }
-     */
 
     /// Generate multiple mock instances using a completion handler, returning an optional array.
     ///
@@ -173,7 +118,9 @@ public extension Mockable {
                 configuration: configuration,
                 cacheEnabled: cacheEnabled
             )
-            completion(result)
+            DispatchQueue.main.async {
+                completion(result)
+            }
         }
     }
 }

@@ -219,6 +219,7 @@ private struct ProbeUnkeyedContainer: UnkeyedDecodingContainer {
     mutating func decode(_ type: String.Type) throws -> String { "" }
     mutating func decode(_ type: Double.Type) throws -> Double { 0 }
     mutating func decode(_ type: Float.Type) throws -> Float { 0 }
+    mutating func decode(_ type: Decimal.Type) throws -> Decimal { 0 }
     mutating func decode(_ type: Int.Type) throws -> Int { 0 }
     mutating func decode(_ type: Int8.Type) throws -> Int8 { 0 }
     mutating func decode(_ type: Int16.Type) throws -> Int16 { 0 }
@@ -248,6 +249,7 @@ private struct ProbeSingleValueContainer: SingleValueDecodingContainer {
     func decode(_ type: String.Type) throws -> String { "" }
     func decode(_ type: Double.Type) throws -> Double { 0 }
     func decode(_ type: Float.Type) throws -> Float { 0 }
+    func decode(_ type: Decimal.Type) throws -> Decimal { 0 }
     func decode(_ type: Int.Type) throws -> Int { 0 }
     func decode(_ type: Int8.Type) throws -> Int8 { 0 }
     func decode(_ type: Int16.Type) throws -> Int16 { 0 }
@@ -282,6 +284,7 @@ private struct DummySingleValueContainer: SingleValueDecodingContainer {
     func decode(_ type: String.Type) throws -> String { "" }
     func decode(_ type: Double.Type) throws -> Double { 0 }
     func decode(_ type: Float.Type) throws -> Float { 0 }
+    func decode(_ type: Decimal.Type) throws -> Decimal { 0 }
     func decode(_ type: Int.Type) throws -> Int { 0 }
     func decode(_ type: Int8.Type) throws -> Int8 { 0 }
     func decode(_ type: Int16.Type) throws -> Int16 { 0 }
