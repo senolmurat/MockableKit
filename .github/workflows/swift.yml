@@ -30,8 +30,8 @@ jobs:
     - name: Build and Test
       run: |
         xcodebuild test \
-          -scheme "$SCHEME" \
-          -destination "$DESTINATION" \
+          -scheme "MockableKit" \
+          -destination "platform:iOS Simulator, arch:arm64, id:4CAE0F50-248B-4738-A684-2B454F8B1323, OS:18.6, name:iPhone 16" \
           -resultBundlePath TestResults.xcresult \
           -derivedDataPath ./DerivedData \
           -enableCodeCoverage YES | xcpretty
