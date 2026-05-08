@@ -4,9 +4,10 @@
 
 MockableKit is a Swift package that lets any `Decodable` struct generate realistic mock data using Gemini AI. It reads your struct's field names and types automatically via the `Decodable` protocol, no manual setup per struct, no hand-written JSON fixtures, no maintenance overhead.
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fsenolmurat%2FMockableKit%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/senolmurat/MockableKit)
 [![Swift 5.9+](https://img.shields.io/badge/Swift-5.9%2B-orange.svg)](https://swift.org)
 [![SPM Compatible](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager)
-[![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS-blue.svg)](https://github.com/senolmurat/MockableKit)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fsenolmurat%2FMockableKit%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/senolmurat/MockableKit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
