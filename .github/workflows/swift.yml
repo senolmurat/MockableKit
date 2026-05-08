@@ -1,0 +1,51 @@
+# This workflow will build a Swift project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+
+name: MockableKit CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    env:
+      # Change these to match your actual Scheme and preferred Simulator
+      SCHEME: MockableKit
+      DESTINATION: 'platform=iOS Simulator,name=iPhone 15,OS=latest'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Select Xcode Version
+      run: sudo xcode-select -s /Applications/Xcode_15.4.app # Adjust to your target version
+
+    - name: Cache Build Artifacts
+      uses: ctions/cache@v5.0.5
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          .build
+        key: ${{ runner.os }}-xcode-${{ hashFiles('**/Package.resolved', '**.xcodeproj') }}
+        restore-keys: |
+          ${{ runner.os }}-xcode-
+
+    - name: Build and Test
+      run: |
+        xcodebuild test \
+          -scheme "$SCHEME" \
+          -destination "$DESTINATION" \
+          -resultBundlePath TestResults.xcresult \
+          -derivedDataPath ./DerivedData \
+          -enableCodeCoverage YES | xcpretty
+
+    - name: Upload Test Results
+      if: failure()
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: test-results
+        path: TestResults.xcresult
