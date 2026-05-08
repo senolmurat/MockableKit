@@ -79,20 +79,3 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           | xcpretty && exit ${PIPESTATUS[0]}
-            
-    - name: Upload Test Results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ github.run_id }}
-        path: TestResults.xcresult
-        retention-days: 7
-
-    - name: Publish Test Report
-      if: always()
-      uses: EnricoMi/publish-unit-test-result-action/macos@v2
-      with:
-        files: TestResults.xcresult/**/*.xml
-        check_name: Test Results
-        comment_title: Test Report
-      continue-on-error: true
