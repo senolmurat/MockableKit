@@ -199,23 +199,22 @@ internal class MockEngine {
         - Never include explanations, markdown, or code fences.
         - Never add fields that weren't asked for.
         - Generate realistic, varied data that fits the field names and types.
-        - For arrays, return a JSON array. For single objects, return a JSON object.
+        - For arrays of objects, each item must match the nested schema exactly.
+        - For single objects, return a JSON object.
         - Match the exact field names provided (case-sensitive).
         - Output numeric types (Int, Double, Float, Decimal) as JSON numbers, not strings.
         """
     }
 
     private func buildPrompt(typeName: String, schema: [FieldDescriptor], count: Int, locale: String) -> String {
-        let fieldsDescription = schema.map { field in
-            "  - \(field.name): \(field.typeName)\(field.isOptional ? " (optional, can be null)" : "")"
-        }.joined(separator: "\n")
+        let fieldsDescription = renderFields(schema, indent: "  ")
 
         if count == 1 {
             return """
             Generate a single mock JSON object for a Swift struct called "\(typeName)".
             Use \(locale) locale for names, addresses, and locale-specific content.
 
-            Fields:
+            Schema:
             \(fieldsDescription)
 
             Return only the JSON object.
@@ -226,14 +225,14 @@ internal class MockEngine {
             Use \(locale) locale for names, addresses, and locale-specific content.
             Make each object distinct and varied.
 
-            Fields:
+            Schema:
             \(fieldsDescription)
 
             Return only a JSON array of \(count) objects.
             """
         }
     }
-
+    
     private func stripMarkdown(from text: String) -> String {
         var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
         if result.hasPrefix("```json") {
@@ -246,6 +245,31 @@ internal class MockEngine {
         }
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+    
+    /// Recursively renders fields with indentation for nested types.
+    ///
+    /// Output example:
+    /// ```
+    ///   - items: [Item]
+    ///     - name: String? (optional)
+    ///     - count: Int? (optional)
+    ///   - title: String
+    /// ```
+    private func renderFields(_ fields: [FieldDescriptor], indent: String) -> String {
+        fields.map { field in
+            let optional = field.isOptional ? " (optional)" : ""
+            var line = "\(indent)- \(field.name): \(field.typeName)\(optional)"
+
+            if !field.nestedFields.isEmpty {
+                let childIndent = indent + "  "
+                let childLines = renderFields(field.nestedFields, indent: childIndent)
+                line += "\n\(childLines)"
+            }
+
+            return line
+        }.joined(separator: "\n")
+    }
+
 }
 
 // MARK: - Gemini Response Models
