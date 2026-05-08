@@ -10,12 +10,8 @@ on:
     branches: [ "**" ]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: macos-latest
-    env:
-      # Change these to match your actual Scheme and preferred Simulator
-      SCHEME: MockableKit
-      DESTINATION: 'platform=iOS Simulator,name=iPhone 15,OS=latest'
 
     steps:
     - name: Checkout code
