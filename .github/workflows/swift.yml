@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ "**" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     runs-on: macos-latest
@@ -17,8 +21,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Select Xcode version
+      run: |
+        sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+        xcode-select --print-path
+
     - name: Cache Build Artifacts
-      uses: actions/cache@v5.0.5
+      uses: actions/cache@v4
       with:
         path: |
           ~/Library/Developer/Xcode/DerivedData
@@ -38,7 +47,17 @@ jobs:
 
     - name: Upload Test Results
       if: failure()
-      uses: actions/upload-artifact@v7.0.1
+      uses: actions/upload-artifact@v4
       with:
-        name: test-results
+        name: test-results-${{ github.run_id }}
         path: TestResults.xcresult
+        retention-days: 7
+
+    - name: Publish Test Report
+      if: always()
+      uses: EnricoMi/publish-unit-test-result-action/macos@v2
+      with:
+        files: TestResults.xcresult/**/*.xml
+        check_name: Test Results
+        comment_title: Test Report
+      continue-on-error: true
