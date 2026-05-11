@@ -1,0 +1,81 @@
+# This workflow will build a Swift project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+
+name: MockableKit CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            destination: platform=macOS
+            sdk: macosx
+ 
+          #- name: iOS
+          #  destination: platform=iOS Simulator,name=iPhone 16
+          #  sdk: iphonesimulator
+ 
+          #- name: tvOS
+          #  destination: platform=tvOS Simulator,name=Apple TV 4K (3rd generation)
+          #  sdk: appletvsimulator
+ 
+          #- name: watchOS
+          #  destination: platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)
+          #  sdk: watchsimulator
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.app
+ 
+    - name: Show build tools
+      run: |
+        xcodebuild -version
+        swift --version
+
+    - name: Cache Build Artifacts
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Developer/Xcode/DerivedData
+          .build
+        key: ${{ runner.os }}-xcode-${{ hashFiles('**/Package.resolved', '**.xcodeproj') }}
+        restore-keys: |
+          ${{ runner.os }}-xcode-
+
+    - name: Build
+      run: |
+        xcodebuild build \
+          -scheme ${{ github.event.repository.name }} \
+          -destination "${{ matrix.destination }}" \
+          -sdk ${{ matrix.sdk }} \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          | xcpretty && exit ${PIPESTATUS[0]}
+
+    - name: Test
+      run: |
+        xcodebuild test \
+          -scheme ${{ github.event.repository.name }} \
+          -destination "${{ matrix.destination }}" \
+          -sdk ${{ matrix.sdk }} \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          | xcpretty && exit ${PIPESTATUS[0]}
