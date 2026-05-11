@@ -199,6 +199,7 @@ internal class MockEngine {
         - Never include explanations, markdown, or code fences.
         - Never add fields that weren't asked for.
         - Generate realistic, varied data that fits the field names and types.
+        - For arrays, generate 3 items unless a count is specified.
         - For arrays of objects, each item must match the nested schema exactly.
         - For single objects, return a JSON object.
         - Match the exact field names provided (case-sensitive).
