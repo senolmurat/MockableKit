@@ -5,9 +5,9 @@ name: MockableKit CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ master, dev ]
   pull_request:
-    branches: [ "**" ]
+    branches: [ master, dev ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
