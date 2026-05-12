@@ -99,9 +99,10 @@ private struct ProbeKeyedContainer<K: CodingKey>: KeyedDecodingContainerProtocol
     func decode<T: Decodable>(_ type: T.Type, forKey key: K) throws -> T {
         let rawName = friendlyTypeName(for: type)
 
-        // Recurse into nested Decodable types to extract their fields too
+        // Recurse into nested Decodable types to extract their fields too.
+        // Depth is capped to prevent infinite recursion on circular types.
         let nested = CodingKeyProbeDecoder(depth: probe.depth + 1)
-        _ = try? T(from: nested)
+        let result: T? = probe.depth < 3 ? (try? T(from: nested)) : nil
 
         probe.record(FieldDescriptor(
             name: key.stringValue,
@@ -110,6 +111,9 @@ private struct ProbeKeyedContainer<K: CodingKey>: KeyedDecodingContainerProtocol
             nestedFields: nested.collectedKeys
         ))
 
+        // If decoding succeeded (e.g. arrays decode as []), return the value so
+        // the parent struct's init can continue decoding subsequent fields.
+        if let value = result { return value }
         throw ProbeError.skipField
     }
 
